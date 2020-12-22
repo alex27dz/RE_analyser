@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, url_for  # Flask server init
 from flask_cors import CORS, cross_origin  # solution for error: cross origin
 from Run_file_addr_data import *  # importing all classes and functions
-from Run_file_builders_data import *  # importing all classes and functions
+#from Run_file_builders_data import *  # importing all classes and functions
 #from Class_Builders_tool import *  # importing builders tool class to activate from Front request
 import requests  # handaling requests from front end
 import json  # working with json dicts
@@ -67,14 +67,6 @@ FL
 -----------------------------------------------------
 '''
 
-# local data
-xls_name = 'Demography.xlsx'
-xls_name2 = 'Crime.xlsx'
-xls_name3 = 'Schools.xlsx'
-xls_name4 = 'CMA.xlsx'
-xls_name5 = 'Builders.xlsx'
-log_file_name = '(NR)-Testlog.txt'
-
 # Flask setup
 app = Flask(__name__)
 CORS(app)
@@ -99,7 +91,7 @@ def address():
         'state': ''
     }
     if request.method == "POST":
-        print('Hi, the address function was activated :)')
+        print('Address automation was activated :)')
         print('The input parameters are: {}'.format(request.json))  # request params in json
 
         # converting params
@@ -109,14 +101,12 @@ def address():
         flask_addr['state'] = request.json.get('state')
 
         # running the run file function using params from Front converting to json format
-        datalist = address_data_automate_tool(flask_addr['street'], flask_addr['city'], flask_addr['short_state'], flask_addr['state'], log_file_name, xls_name, xls_name2, xls_name3, xls_name4)
+        datalist = address_data_automate_tool(flask_addr['street'], flask_addr['city'], flask_addr['short_state'], flask_addr['state'], 'Dani')
         print('------------------------------------------------------------------------')
-        # converting the data_list list into beautiful :) string
-        # the string representing all dicts in the list and print the back same as on console
+        # converting the data_list list into beautiful string the string representing all dicts in the list and print the back same as on console
         data2json = json.dumps(datalist, indent=4, separators=(". ", " = "))
-        print('Type of return object {}'.format(type(data2json)))
+        print('Results type: {}'.format(type(data2json)))
         print('Results: \n {}'.format(data2json))  # printing the results
-
         return data2json  # return all dictionaries in one list in jason format, printed on home page
 
 

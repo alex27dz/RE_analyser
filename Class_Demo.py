@@ -275,6 +275,7 @@ class HometownLocator(object):
             self.census_block_url = driver.find_element_by_partial_link_text('(Census Block Group)').click()
             time.sleep(3)
             self.census_block_url = driver.current_url
+            print(driver.current_url)
         except:
             print('failed to locate block url - not from 404 error')
 

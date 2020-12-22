@@ -22,26 +22,28 @@ from selenium.webdriver.common.action_chains import ActionChains
 from openpyxl.styles import Alignment
 import urllib.request
 
-#street = '451 clear blue way'  # taken from community builder list
-#city = 'mcdonough'  # taken from community builder list
-#short_state = 'GA'  # taken from community builder list
-#state = 'Georgia'  # input
-#randomid = 'alex2'
+
 
 #street = '1618 Lake Sims Parkway'  # taken from community builder list
 #city = 'Ocoee'  # taken from community builder list
 #short_state = 'FL'  # taken from community builder list
 #state = 'Florida'  # input
 
+#street = '451 clear blue way'  # taken from community builder list
+#city = 'mcdonough'  # taken from community builder list
+#short_state = 'GA'  # taken from community builder list
+#state = 'Georgia'  # input
+#randomid = 'Dani'
+
 
 def address_data_automate_tool(street, city, short_state, state, randomid):
     logging.basicConfig(filename='(NR)-Testlog.txt', level=logging.DEBUG, format='%(asctime)s: %(message)s')  # log file
     global_data_list_address_automate = []
-    dict_block_SQL = {'': ''}
-    dict_city_SQL = {'': ''}
-    dict_metro_SQL = {'': ''}
-    dict_crime_SQL = {'': ''}
-    dict_schools_SQL = {'': ''}
+    #dict_block_SQL = {'': ''}
+    #dict_city_SQL = {'': ''}
+    #dict_metro_SQL = {'': ''}
+    #dict_crime_SQL = {'': ''}
+    #dict_schools_SQL = {'': ''}
 
     print('Demography run started')
     htl = HometownLocator(street, state, city, short_state, 'Demography.xlsx')
@@ -122,14 +124,12 @@ def address_data_automate_tool(street, city, short_state, state, randomid):
     crime.closeBrowser()
     print('Crime Run ended')
 
-
     print('printing all dictionaries before copy to MySQL')
     print(dict_block_SQL)
     print(dict_city_SQL)
     print(dict_metro_SQL)
     print(dict_crime_SQL)
     print(dict_schools_SQL)
-
     addr = street + ' ' + city + ' ' + short_state
 
     # MySQL
@@ -201,6 +201,9 @@ def address_data_automate_tool(street, city, short_state, state, randomid):
         print('address inserted')
     except:
         print('failed to connect to sql')
+
+    return global_data_list_address_automate
+
 
 #address_data_automate_tool(street, city, short_state, state, randomid)
 
