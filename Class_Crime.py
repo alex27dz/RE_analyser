@@ -103,47 +103,46 @@ class Crime(object):
 # getting all the information and copy into dicts
     def onboardnavigator_to_dict(self):
         try:
+            print('onboardnavigator')
             driver = self.driver
             driver.get(self.onboardnavigator_url)
-            time.sleep(3)
+            time.sleep(10)
             print('Navigator tool opened')
             # select state
             state = driver.find_element_by_xpath('//*[@id="ddlGenLookupStateID"]').click()
+            time.sleep(5)
             Select(driver.find_element_by_tag_name('select')).select_by_visible_text(self.state)
-            time.sleep(3)
+            time.sleep(5)
             print('state selected')
             driver.find_element_by_xpath('//*[@id="tbGenSearch"]').send_keys(self.city)
-            time.sleep(2)
+            time.sleep(3)
             driver.find_element_by_xpath('//*[@id="radGenCity"]').click()
-            time.sleep(2)
+            time.sleep(3)
             driver.find_element_by_xpath('//*[@id="cmdGenSave"]').click()
-            time.sleep(4)
+            time.sleep(10)
             print('navigator address located')
-            #failed_link = driver.current_url
-            #self.dict_onboardnavigator['Total overall'] = failed_link
-            # copy onboardnav link to the graph to dictionary
             link = driver.current_url
             self.dict_onboardnavigator['Total personal'] = link
             self.dict_onboardnavigator['Total property'] = link
             self.dict_onboardnavigator['Total overall'] = link
             print('onboardnavigator params was copied to dictionary , success {}'.format(self.dict_onboardnavigator))
-
         except:
             print('failed to locate navigator')
 
     def city_data_to_dict(self):
         try:
+            print('citydata')
             driver = self.driver
             driver.get(self.city_data_url)
+            time.sleep(10)
             driver.find_element_by_xpath('//*[@id="intelligent_search"]').click()
-            time.sleep(2)
+            time.sleep(3)
             driver.find_element_by_xpath('//*[@id="intelligent_search"]').send_keys(self.city + ' ' + self.state)
-            time.sleep(2)
+            time.sleep(3)
             driver.find_element_by_xpath('//*[@id="search_bar_box"]/input[2]').click()
-            time.sleep(5)
-
-
+            time.sleep(10)
             driver.execute_script("window.scrollTo(0,4100)")
+            time.sleep(10)
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="sex-offenders"]/p')))
             # select city data elemnets and copy to dictionary
             self.dict_city_data['total info'] = driver.find_element_by_xpath('//*[@id="sex-offenders"]/p').text
@@ -170,59 +169,60 @@ class Crime(object):
 
     def home_facts_to_dict(self):
         try:
+            print('homefacts')
             driver = self.driver
             driver.get(self.home_facts_url)
+            time.sleep(10)
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="fulladdress"]')))
             addr = driver.find_element_by_xpath('//*[@id="fulladdress"]')
             addr.click()
-            addr.send_keys(self.full_addr)
-            driver.find_element_by_xpath('//*[@id="main-search-form"]/div/div/div/div[1]/span/button').click()
             time.sleep(3)
-            # element = driver.find_element_by_xpath('//*[@id="crime"]/div/div[4]/h3/span[1]/a')
-            element = driver.find_element_by_id('crime')
-            actions = ActionChains(driver)
-            actions.move_to_element(element).perform()
-            #driver.execute_script("window.scrollTo(0,2700)")
-            print(driver.current_url)
+            addr.send_keys(self.full_addr)
+            time.sleep(3)
+            driver.find_element_by_xpath('//*[@id="main-search-form"]/div/div/div/div[1]/span/button').click()
             time.sleep(10)
-            driver.find_element_by_partial_link_text('view crime statistics report').click()
-            #element.click()
-            time.sleep(5)
+            element = driver.find_element_by_xpath('/html/body/section[2]/div[2]/div[2]/div[1]/div[3]/ul/li[1]/span[4]/a')
+            driver.execute_script("window.scrollTo(0,600)")
+            time.sleep(3)
+            element.click()
+            print(driver.current_url)
+            print('view crime statistics report')
+            time.sleep(10)
+            try:
+                print('trying to click')
+                driver.find_element_by_partial_link_text('view crime statistics report').click()
+            except:
+                print('trying to click with second option')
+                driver.execute_script("window.scrollTo(0,2700)")
+                time.sleep(7)
+                driver.find_element_by_partial_link_text('view crime statistics report').click()
 
-
-
+            time.sleep(10)
+            print(driver.current_url)
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="crimeScore"]/div[1]/div[4]')))
             self.dict_home_facts['Overall Score'] = driver.find_element_by_xpath('//*[@id="crimeScore"]/div[1]/div[4]').get_attribute('class')
             self.dict_home_facts['Overall score big num'] = driver.find_element_by_xpath('//*[@id="crimeScore"]/div[1]/div[2]').text
             self.dict_home_facts['Score small procents'] = driver.find_element_by_xpath('//*[@id="crimeScore"]/div[1]/div[3]').text
-    #
             self.dict_home_facts['Overall Score'] = self.dict_home_facts['Overall Score']
             self.dict_home_facts['Overall score big num'] = self.dict_home_facts['Overall score big num']
             self.dict_home_facts['Score small procents'] = self.dict_home_facts['Score small procents']
-
             print(self.dict_home_facts['Overall Score'])
             print(self.dict_home_facts['Overall score big num'])
             print(self.dict_home_facts['Score small procents'])
-
-            time.sleep(3)
-
             self.dict_crime_total['Overall Score'] = self.dict_home_facts['Overall Score']
             self.dict_crime_total['Overall score big num'] = self.dict_home_facts['Overall score big num']
             self.dict_crime_total['Score small procents'] = self.dict_home_facts['Score small procents']
-
             print('dict_home_facts params was copied to dictionary , success {}'.format(self.dict_home_facts))
             print('dict_offenders params was copied to dictionary , success {}'.format(self.dict_offenders))
-            #return True
         except:
-            #logging.debug('fail to locate and copy from home facts')
             print('failed to locate and copy from home facts')
-            #return False
 
     def neighborhoodscout_to_dict(self):
         try:
+            print('neighborhoodscout')
             print(self.neighborhoodscout_url)
             data = requests.get(self.neighborhoodscout_url)
-            print(self.neighborhoodscout_url)
+            time.sleep(5)
             soup = BeautifulSoup(data.content, 'html.parser')
             list = soup.find_all('script', type='application/ld+json')
             list = str(list)
@@ -233,7 +233,6 @@ class Crime(object):
             index1 = orig_list.find('[')
             orig_list = orig_list[index1:]
             index2 = orig_list.find(']')
-
             # list of safety places taken from HTML converted to string
             orig_list = orig_list[index1:index2]
             self.dict_neighborhoodscout['List of safe areas'] = orig_list
@@ -248,8 +247,10 @@ class Crime(object):
 
     def bestplaces_to_dict(self):
         try:
+            print('bestplaces')
             driver = self.driver
             driver.get(self.bestplaces_url)
+            time.sleep(5)
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="form1"]/div[7]/div[2]/div[2]/div[2]/div/h5[1]')))
             self.dict_bestplaces['Violent crime & US average'] = driver.find_element_by_xpath('//*[@id="form1"]/div[7]/div[2]/div[2]/div[2]/div/h5[1]').text
             self.dict_bestplaces['Property crime & US average'] = driver.find_element_by_xpath('//*[@id="form1"]/div[7]/div[2]/div[2]/div[2]/div/h5[2]').text
@@ -273,7 +274,7 @@ class Crime(object):
 
 # print all dictionaries
     def printall(self):
-        print('hi all dictionaries\n')
+        print('All dictionaries\n')
         pp = pprint.PrettyPrinter(indent=4)
         print(self.dict_basic_info)
         pp.pprint(self.dict_basic_info)
@@ -334,39 +335,40 @@ class Crime(object):
                     print("address is already exists in database!, recopy new run info ")
                     logging.debug("address is already exists in database!, recopy new run info ")
                     return False
+
     def all_dicts_to_xls(self):
         try:
             wb = openpyxl.load_workbook(self.xls_name)
             sheet = wb[self.full_addr[:25]]
 
-            sheet['B27'].value = self.dict_basic_info['street']
-            sheet['B28'].value = self.dict_basic_info['city']
-            sheet['B29'].value = self.dict_basic_info['state']
+            sheet['A3'].value = self.dict_basic_info['street']
+            sheet['C3'].value = self.dict_basic_info['city']
+            sheet['D3'].value = self.dict_basic_info['state']
 
-            sheet['B2'].value = self.dict_onboardnavigator['Total personal']
-            sheet['B3'].value = self.dict_onboardnavigator['Total property']
-            sheet['B4'].value = self.dict_onboardnavigator['Total overall']
-            sheet['B5'].value = self.dict_onboardnavigator['Year']
+            sheet['B24'].value = self.dict_onboardnavigator['Total personal']
+            sheet['B25'].value = self.dict_onboardnavigator['Total property']
+            sheet['B26'].value = self.dict_onboardnavigator['Total overall']
+            sheet['B27'].value = self.dict_onboardnavigator['Year']
 
-            sheet['B7'].value = self.dict_city_data['Crime Index city']
-            sheet['B8'].value = self.dict_city_data['US avarage']
-            sheet['B9'].value = self.dict_city_data['Pic of graph']
-            sheet['B10'].value = self.dict_city_data['total info']
+            sheet['B29'].value = self.dict_city_data['Crime Index city']
+            sheet['B30'].value = self.dict_city_data['US avarage']
+            sheet['B31'].value = self.dict_city_data['Pic of graph']
+            sheet['B32'].value = self.dict_city_data['total info']
 
-            sheet['B12'].value = self.dict_home_facts['Overall Score']
-            sheet['B13'].value = self.dict_home_facts['Overall score big num']
-            sheet['B14'].value = self.dict_home_facts['Score small procents']
-            sheet['B18'].value = self.dict_home_facts['Year']
-            sheet['B16'].value = self.dict_offenders['offender1']
-            sheet['B17'].value = self.dict_offenders['offender2']
-            sheet['B15'].value = self.dict_offenders['offender3']
+            sheet['B34'].value = self.dict_home_facts['Overall Score']
+            sheet['B35'].value = self.dict_home_facts['Overall score big num']
+            sheet['B36'].value = self.dict_home_facts['Score small procents']
+            sheet['B37'].value = self.dict_offenders['offender1']
+            sheet['B38'].value = self.dict_offenders['offender2']
+            sheet['B39'].value = self.dict_offenders['offender3']
+            sheet['B40'].value = self.dict_home_facts['Year']
 
-            sheet['B20'].value = self.dict_neighborhoodscout['Diagram']
-            sheet['B21'].value = self.dict_neighborhoodscout['List of safe areas']
+            sheet['B42'].value = self.dict_neighborhoodscout['Diagram']
+            sheet['B43'].value = self.dict_neighborhoodscout['List of safe areas']
 
-            sheet['B23'].value = self.dict_bestplaces['Violent crime & US average']
-            sheet['B24'].value = self.dict_bestplaces['Property crime & US average']
-            sheet['B25'].value = self.dict_bestplaces['Photos and Maps of the city']
+            sheet['B45'].value = self.dict_bestplaces['Violent crime & US average']
+            sheet['B46'].value = self.dict_bestplaces['Property crime & US average']
+            sheet['B47'].value = self.dict_bestplaces['Photos and Maps of the city']
 
             wb.save(self.xls_name)
             wb.close()

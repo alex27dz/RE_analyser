@@ -17,8 +17,9 @@ from selenium.webdriver.support.ui import Select
 
 
 class Schools(object):
-    def __init__(self, street, state, city, short_state, xls_name, county_name):
+    def __init__(self, street, state, city, short_state, xls_name, county_name, zip_code):
         # all setup params
+        self.zip_code = zip_code
         self.street = street
         self.state = state
         self.city = city
@@ -51,7 +52,6 @@ class Schools(object):
         }
 
 
-        #dictionaries
         self.dict_basic_info = {
             'street': self.street,
             'city': self.city,
@@ -144,6 +144,8 @@ class Schools(object):
                     driver.back()
                 except:
                     print('failed to locate middle school from greateschools')
+                    self.dict_greatschools['school - middle link'] = 'NA'
+
 
                 try:
                     # high school assigned tags
@@ -168,12 +170,13 @@ class Schools(object):
             driver = self.driver
             driver.get(self.schooldigger_url)
             print(driver.current_url)
+            time.sleep(3)
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="txtHPAC"]')))
-            time.sleep(2)
+            time.sleep(3)
             driver.find_element_by_xpath('//*[@id="txtHPAC"]').click()
-            time.sleep(1)
+            time.sleep(3)
             driver.find_element_by_xpath('//*[@id="txtHPAC"]').send_keys(self.street.lower() + " " + self.city.lower() + " " + self.state.lower())
-            time.sleep(1)
+            time.sleep(3)
             driver.find_element_by_xpath('//*[@id="txtHPAC"]').send_keys(Keys.ENTER)
             time.sleep(3)
             print(driver.current_url)
@@ -181,70 +184,68 @@ class Schools(object):
             # elementary schools under boundary tags
             try:
                 driver.find_element_by_partial_link_text('Elementary').click()
-                time.sleep(2)
+                time.sleep(5)
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located(
                     (By.XPATH, '//*[@id="aspnetForm"]/div[5]/div[1]/div[3]/h1/span')))
                 self.dict_schooldigger['school - elementary link'] = driver.current_url
                 self.dict_schooldigger['school - elementary name'] = driver.find_element_by_xpath('//*[@id="aspnetForm"]/div[5]/div[1]/div[3]/h1/span').text
                 print('elemantary school found in schooldigger')
                 driver.back()
-                time.sleep(2)
+                time.sleep(10)
             except:
                 print('elemantary school was not fount in schooldigger')
-            # middle boundry tags
 
             try:
                 driver.find_element_by_partial_link_text('Middle').click()
-                time.sleep(2)
+                time.sleep(5)
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located(
                     (By.XPATH, '//*[@id="aspnetForm"]/div[5]/div[1]/div[3]/h1/span')))
                 self.dict_schooldigger['school - middle link'] = driver.current_url
                 self.dict_schooldigger['school - middle name'] = driver.find_element_by_xpath('//*[@id="aspnetForm"]/div[5]/div[1]/div[3]/h1/span').text
                 driver.back()
-                time.sleep(2)
-                #print('middle school found in schooldigger')
+                time.sleep(10)
+                print('middle school found in schooldigger')
             except:
                 print('middle school was not fount in schooldigger')
             # high boundary tags
             try:
                 driver.find_element_by_partial_link_text('High').click()
-                time.sleep(2)
+                time.sleep(10)
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located(
                     (By.XPATH, '//*[@id="aspnetForm"]/div[5]/div[1]/div[3]/h1/span')))
                 self.dict_schooldigger['school - high link'] = driver.current_url
                 self.dict_schooldigger['school - high name'] = driver.find_element_by_xpath('//*[@id="aspnetForm"]/div[5]/div[1]/div[3]/h1/span').text
-                #print('high school found in schooldigger')
+                print('high school found in schooldigger')
                 driver.back()
-                time.sleep(1)
+                time.sleep(10)
             except:
                 print('high school was not fount in schooldigger')
-
             print('schooldigger params was copied to dictionary , success {}'.format(self.dict_schooldigger))
-            return True
         except:
             print('failed to connect or locate params from schooldigger')
-            logging.debug('fail')
-            return False
 
     def homefacts_to_dict(self):
         try:
             driver = self.driver
             driver.get(self.homefacts_url)
-            time.sleep(2)
+            time.sleep(10)
+            print('homefacts entered ')
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="fulladdress"]')))
             driver.find_element_by_xpath('//*[@id="fulladdress"]').click()
-            time.sleep(1)
-            driver.find_element_by_xpath('//*[@id="fulladdress"]').send_keys(self.street.lower() + " " + self.city.lower() + " " + self.state.lower())
-            time.sleep(1)
+            time.sleep(2)
+            # driver.find_element_by_xpath('//*[@id="fulladdress"]').send_keys(self.street.lower() + " " + self.city.lower() + " " + self.state.lower())
+            driver.find_element_by_xpath('//*[@id="fulladdress"]').send_keys(str(self.zip_code))
+            time.sleep(10)
             driver.find_element_by_xpath('//*[@id="fulladdress"]').send_keys(Keys.ENTER)
             time.sleep(3)
             WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="navbar"]/ul/li[4]/a')))
             driver.find_element_by_xpath('//*[@id="navbar"]/ul/li[4]/a').click()
-            time.sleep(2)
+            time.sleep(5)
             driver.execute_script("window.scrollTo(0,550)")
             time.sleep(3)
             print(driver.current_url)
             time.sleep(3)
+            print('schools list located')
             # elementary
             try:
                 driver.execute_script("window.scrollTo(0,750)")
@@ -252,7 +253,7 @@ class Schools(object):
                 driver.find_element_by_partial_link_text('ELEMENTARY SCHOOL').click()
                 time.sleep(5)
                 school_name = driver.find_element_by_xpath('/html/body/section[2]/div[2]/div/div[1]/h1/span').text
-                print(school_name)
+                print('ELEMENTARY {}'.format(school_name))
                 time.sleep(3)
                 self.dict_homefacts['school - elementary name'] = school_name #                 //*[@id="school_year_2019"]/div[1]/div[2]
                 self.dict_homefacts['school - elementary link'] = driver.find_element_by_xpath('//*[@id="school_year_2018"]/div[1]/div[2]').get_attribute('class')
@@ -265,15 +266,14 @@ class Schools(object):
                 time.sleep(5)
             except:
                 print('elemantary school was not fount in homefacts')
-                #driver.back()
-            # middle
+
             try:
                 driver.execute_script("window.scrollTo(0,750)")
                 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, 'MIDDLE SCHOOL')))
                 driver.find_element_by_partial_link_text('MIDDLE SCHOOL').click()
                 time.sleep(5)
                 school_name = driver.find_element_by_xpath('/html/body/section[2]/div[2]/div/div[1]/h1/span').text
-                print(school_name)
+                print('middle {}'.format(school_name))
                 self.dict_homefacts['school - middle name'] = school_name
                 self.dict_homefacts['school - middle link'] = driver.find_element_by_xpath('//*[@id="school_year_2018"]/div[1]/div[2]').get_attribute('class')
                 print(self.dict_homefacts['school - middle link'])
@@ -284,9 +284,7 @@ class Schools(object):
                 time.sleep(5)
             except:
                 print('middle school was not fount in homefacts')
-                #driver.back()
 
-            # high
             try:
                 print('trying to locate high school')
                 driver.execute_script("window.scrollTo(0,750)")
@@ -294,7 +292,7 @@ class Schools(object):
                 driver.find_element_by_partial_link_text('HIGH').click()
                 time.sleep(5)
                 school_name = driver.find_element_by_xpath('/html/body/section[2]/div[2]/div/div[1]/h1/span').text
-                print(school_name)
+                print('High school {}'.format(school_name))
                 time.sleep(5)
                 self.dict_homefacts['school - high name'] = school_name
                 print('trying to locate high school grade from pic') # //*[@id="school_year_2018"]/div[1]/div[2]
@@ -307,13 +305,10 @@ class Schools(object):
                 time.sleep(5)
             except:
                 print('high school was not fount in homefacts')
-                #driver.back()
 
             print('homefacts params was copied to dictionary , success {}'.format(self.dict_homefacts))
-
         except:
             print('fail to copy params from homefacts')
-            logging.debug('fail')
 
     def niche_to_dict(self):
         try:
@@ -386,39 +381,34 @@ class Schools(object):
             logging.debug("address was already searched & exists in database")
             return False
     def all_dicts_to_xls(self):
+        print('copy dicts to xls')
         wb = openpyxl.load_workbook(self.xls_name)
         sheet = wb[self.full_addr[:25]]
         # print(wb.sheetnames)
-        sheet['B2'].value = self.dict_greatschools['school - elementary name']
-        sheet['B3'].value = self.dict_greatschools['school - elementary link']
-        sheet['B4'].value = self.dict_greatschools['school - middle name']
-        sheet['B5'].value = self.dict_greatschools['school - middle link']
-        sheet['B6'].value = self.dict_greatschools['school - high name']
-        sheet['B7'].value = self.dict_greatschools['school - high link']
+        sheet['F24'].value = self.dict_greatschools['school - elementary name']
+        sheet['F25'].value = self.dict_greatschools['school - elementary link']
+        sheet['F26'].value = self.dict_greatschools['school - middle name']
+        sheet['F27'].value = self.dict_greatschools['school - middle link']
+        sheet['F28'].value = self.dict_greatschools['school - high name']
+        sheet['F29'].value = self.dict_greatschools['school - high link']
 
-        sheet['B9'].value = self.dict_schooldigger['school - elementary name']
-        sheet['B10'].value = self.dict_schooldigger['school - elementary link']
-        sheet['B11'].value = self.dict_schooldigger['school - middle name']
-        sheet['B12'].value = self.dict_schooldigger['school - middle link']
-        sheet['B13'].value = self.dict_schooldigger['school - high name']
-        sheet['B14'].value = self.dict_schooldigger['school - high link']
+        sheet['F31'].value = self.dict_schooldigger['school - elementary name']
+        sheet['F32'].value = self.dict_schooldigger['school - elementary link']
+        sheet['F33'].value = self.dict_schooldigger['school - middle name']
+        sheet['F34'].value = self.dict_schooldigger['school - middle link']
+        sheet['F35'].value = self.dict_schooldigger['school - high name']
+        sheet['F36'].value = self.dict_schooldigger['school - high link']
 
-        sheet['B16'].value = self.dict_homefacts['school - elementary name']
-        sheet['B17'].value = self.dict_homefacts['school - elementary link']
-        sheet['B18'].value = self.dict_homefacts['school - middle name']
-        sheet['B19'].value = self.dict_homefacts['school - middle link']
-        sheet['B20'].value = self.dict_homefacts['school - high name']
-        sheet['B21'].value = self.dict_homefacts['school - high link']
+        sheet['F38'].value = self.dict_homefacts['school - elementary name']
+        sheet['F39'].value = self.dict_homefacts['school - elementary link']
+        sheet['F40'].value = self.dict_homefacts['school - middle name']
+        sheet['F41'].value = self.dict_homefacts['school - middle link']
+        sheet['F42'].value = self.dict_homefacts['school - high name']
+        sheet['F43'].value = self.dict_homefacts['school - high link']
 
-        #sheet['B23'].value = self.dict_niche['link - County Schools']
-        #sheet['B24'].value = self.dict_niche['name - global']
-        #sheet['B25'].value = self.dict_niche['rank - School Districts if exists']
-        #sheet['B26'].value = self.dict_niche['grade - overall niche grade']
-        #sheet['B27'].value = self.dict_niche['link - all ranks state county schools/metropolitan/national']
-
-        sheet['B29'].value = self.dict_basic_info['street']
-        sheet['B30'].value = self.dict_basic_info['city']
-        sheet['B31'].value = self.dict_basic_info['state']
+        # sheet['F29'].value = self.dict_basic_info['street']
+        # sheet['F30'].value = self.dict_basic_info['city']
+        # sheet['F31'].value = self.dict_basic_info['state']
 
         wb.save(self.xls_name)
         wb.close()

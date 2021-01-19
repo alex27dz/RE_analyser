@@ -22,36 +22,27 @@ from selenium.webdriver.common.action_chains import ActionChains
 from openpyxl.styles import Alignment
 import urllib.request
 
+# street = '451 clear blue way'  # taken from community builder list
+# city = 'mcdonough'  # taken from community builder list
+# short_state = 'GA'  # taken from community builder list
+# state = 'Georgia'  # input
 
-
-#street = '1618 Lake Sims Parkway'  # taken from community builder list
-#city = 'Ocoee'  # taken from community builder list
-#short_state = 'FL'  # taken from community builder list
-#state = 'Florida'  # input
-
-#street = '451 clear blue way'  # taken from community builder list
-#city = 'mcdonough'  # taken from community builder list
-#short_state = 'GA'  # taken from community builder list
-#state = 'Georgia'  # input
-#randomid = 'Dani'
-
+#
+# street = '1618 Lake Sims Parkway'  # taken from community builder list
+# city = 'Ocoee'  # taken from community builder list
+# short_state = 'FL'  # taken from community builder list
+# state = 'Florida'  # input
+# randomid = 'alex2'
 
 def address_data_automate_tool(street, city, short_state, state, randomid):
     logging.basicConfig(filename='(NR)-Testlog.txt', level=logging.DEBUG, format='%(asctime)s: %(message)s')  # log file
     global_data_list_address_automate = []
-    #dict_block_SQL = {'': ''}
-    #dict_city_SQL = {'': ''}
-    #dict_metro_SQL = {'': ''}
-    #dict_crime_SQL = {'': ''}
-    #dict_schools_SQL = {'': ''}
 
     print('Demography run started')
-    htl = HometownLocator(street, state, city, short_state, 'Demography.xlsx')
+    htl = HometownLocator(street, state, city, short_state, 'Address_data_full.xlsx')
     htl.google_Maps_Addr_Coord()
-    htl.basic_Info_urls_from_HomeTownLocator()
     htl.metropolitan_area_Look_Up_Tool()
     htl.metro_to_url()
-    #   dicts                     copy                        url
     htl.params_to_dict_block(htl.HTML_to_dictionary(htl.return_block_url()))
     htl.params_to_dict_track(htl.HTML_to_dictionary(htl.return_track_url()))
     htl.params_to_dict_zip_code(htl.HTML_to_dictionary(htl.return_zip_code_url()))
@@ -74,12 +65,14 @@ def address_data_automate_tool(street, city, short_state, state, randomid):
     dict_city_SQL = htl.return_dict_city()
     dict_metro_SQL = htl.return_dict_metro()
     county = htl.return_county_name()[:-7]
+    zip_code = htl.return_zip_code_for_zillow_use()
     print('county name for schools run: {}'.format(county))
     htl.closeBrowser()
     print('Demography Run ended')
 
     print('Schools class started')
-    school = Schools(street, state, city, short_state, 'Schools.xlsx', county)
+
+    school = Schools(street, state, city, short_state, 'Address_data_full.xlsx', county, zip_code)
     # getting all schools info and putting it into dictionaries
     school.homefacts_to_dict()
     school.greateschools_to_dict()
@@ -91,7 +84,7 @@ def address_data_automate_tool(street, city, short_state, state, randomid):
     global_data_list_address_automate.append(school.return_dict_schooldigger())
     global_data_list_address_automate.append(school.return_dict_homefacts())
     # copy all dictionaries to xls file
-    school.xls_new_sheet_for_search_create()
+    # school.xls_new_sheet_for_search_create()
     school.all_dicts_to_xls()
     dict_schools_SQL = school.return_dict_schools_general()
     print('a')
@@ -100,14 +93,14 @@ def address_data_automate_tool(street, city, short_state, state, randomid):
     print('Schools Run ended')
 
     print('Crime class started')
-    crime = Crime(street, state, city, short_state, 'Crime.xlsx')
+    crime = Crime(street, state, city, short_state, 'Address_data_full.xlsx')
     # getting all the information and copy into dicts
     crime.onboardnavigator_to_dict()
     crime.city_data_to_dict()
     crime.home_facts_to_dict()
     crime.neighborhoodscout_to_dict()
     crime.bestplaces_to_dict()
-    crime.xls_new_sheet_create()
+    # crime.xls_new_sheet_create()
     crime.all_dicts_to_xls()
     crime.printall()
     # returning all dictionaries for general list
@@ -130,6 +123,7 @@ def address_data_automate_tool(street, city, short_state, state, randomid):
     print(dict_metro_SQL)
     print(dict_crime_SQL)
     print(dict_schools_SQL)
+
     addr = street + ' ' + city + ' ' + short_state
 
     # MySQL
@@ -137,14 +131,17 @@ def address_data_automate_tool(street, city, short_state, state, randomid):
     try:
         print('Connecting to MySQL server')
         db = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            passwd='NV27vnmc',
-            database='data_list_storage'
+            host='107.180.21.18',
+            user='grow097365',
+            passwd='Jknm678##Tg',
+            database='equity_property'
         )
         mycursor = db.cursor()
         print(db)  # checking our connection to DB
-        sql = "INSERT INTO Full_Information (id_generated, time, address, Total_Population_block, Population_Growth_2010_2019_block, Population_Growth_2019_2024_block, Median_Household_Income_block, Average_Household_Income_block, Owner_Occupied_HU_block, Renter_Occupied_HU_block, Vacant_Housing_Units_block, Median_Home_Value_block, Total_Population_city, Population_Growth_2010_2019_city, Population_Growth_2019_2024_city, Median_Household_Income_city, Average_Household_Income_city, Owner_Occupied_HU_city, Renter_Occupied_HU_city, Vacant_Housing_Units_city, Median_Home_Value_city, Total_Population_metro, Population_Growth_2010_2019_metro, Population_Growth_2019_2024_metro, Median_Household_Income_metro, Average_Household_Income_metro, Owner_Occupied_HU_metro, Renter_Occupied_HU_metro, Vacant_Housing_Units_metro, Median_Home_Value_metro, Crime_Index_city, US_avarage, Pic_of_graph, Total_crime_index, Violent_crime_index, Property_crime_index, Violent_crime_US_average, Property_crime_US_average, Photos_and_Maps_of_the_city, school_elementary_name, school_elementary_link, school_middle_name, school_middle_link, school_high_name, school_high_link, school_HF_elementary_name, school_HF_elementary_link, school_HF_middle_name, school_HF_middle_link, school_HF_high_name, school_HF_high_link) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO Full_Information (id_generated, time, address, Total_Population_block, Population_Growth_2010_2019_block, Population_Growth_2019_2024_block, Median_Household_Income_block, Average_Household_Income_block, Owner_Occupied_HU_block, Renter_Occupied_HU_block, Vacant_Housing_Units_block, Median_Home_Value_block, Total_Population_city, Population_Growth_2010_2019_city, " \
+              "Population_Growth_2019_2024_city, Median_Household_Income_city, Average_Household_Income_city, Owner_Occupied_HU_city, Renter_Occupied_HU_city, Vacant_Housing_Units_city, Median_Home_Value_city, Total_Population_metro, Population_Growth_2010_2019_metro, Population_Growth_2019_2024_metro, Median_Household_Income_metro, Average_Household_Income_metro, Owner_Occupied_HU_metro, " \
+              "Renter_Occupied_HU_metro, Vacant_Housing_Units_metro, Median_Home_Value_metro, Crime_Index_city, US_avarage, Pic_of_graph, Total_crime_index, Violent_crime_index, Property_crime_index, Violent_crime_US_average, Property_crime_US_average, Photos_and_Maps_of_the_city, school_elementary_name, school_elementary_link, school_middle_name, school_middle_link, school_high_name, " \
+              "school_high_link, school_HF_elementary_name, school_HF_elementary_link, school_HF_middle_name, school_HF_middle_link, school_HF_high_name, school_HF_high_link) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
         val = (randomid,
                datetime.datetime.now(),
                addr,
@@ -202,11 +199,8 @@ def address_data_automate_tool(street, city, short_state, state, randomid):
     except:
         print('failed to connect to sql')
 
-    return global_data_list_address_automate
 
-
-#address_data_automate_tool(street, city, short_state, state, randomid)
-
+# address_data_automate_tool(street, city, short_state, state, randomid)
 
 
 
