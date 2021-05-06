@@ -27,95 +27,112 @@ import urllib.request
 # short_state = 'GA'  # taken from community builder list
 # state = 'Georgia'  # input
 
-#
+# 4050 Woods Edge Cir Riviera Beach FL
 # street = '1618 Lake Sims Parkway'  # taken from community builder list
 # city = 'Ocoee'  # taken from community builder list
 # short_state = 'FL'  # taken from community builder list
 # state = 'Florida'  # input
 # randomid = 'alex2'
 
+#
+# street = '19561 Tree Stand Ter'  # taken from community builder list
+# city = 'Loxahatchee'  # taken from community builder list
+# short_state = 'FL'  # taken from community builder list
+# state = 'Florida'  # input
+# randomid = 'alex2'
+
 def address_data_automate_tool(street, city, short_state, state, randomid):
     logging.basicConfig(filename='(NR)-Testlog.txt', level=logging.DEBUG, format='%(asctime)s: %(message)s')  # log file
-    global_data_list_address_automate = []
+    # global_data_list_address_automate = []
 
     print('Demography run started')
     htl = HometownLocator(street, state, city, short_state, 'Address_data_full.xlsx')
+
     htl.google_Maps_Addr_Coord()
     htl.metropolitan_area_Look_Up_Tool()
     htl.metro_to_url()
+
     htl.params_to_dict_block(htl.HTML_to_dictionary(htl.return_block_url()))
     htl.params_to_dict_track(htl.HTML_to_dictionary(htl.return_track_url()))
     htl.params_to_dict_zip_code(htl.HTML_to_dictionary(htl.return_zip_code_url()))
     htl.params_to_dict_city(htl.HTML_to_dictionary(htl.return_city_url()))
     htl.params_to_dict_county(htl.HTML_to_dictionary(htl.return_county_url()))
     htl.params_to_dict_metro(htl.HTML_to_dictionary(htl.return_metro_url()))
+
     htl.printall()  # printing all dicts
-    global_data_list_address_automate.append('Demography')  # adding all to general list
-    global_data_list_address_automate.append(htl.return_dict_basic_info())
-    global_data_list_address_automate.append(htl.return_dict_block())
-    global_data_list_address_automate.append(htl.return_dict_track())
-    global_data_list_address_automate.append(htl.return_dict_zip_code())
-    global_data_list_address_automate.append(htl.return_dict_county())
-    global_data_list_address_automate.append(htl.return_dict_city())
-    global_data_list_address_automate.append(htl.return_dict_metro())
+    # global_data_list_address_automate.append('Demography')  # adding all to general list
+    # global_data_list_address_automate.append(htl.return_dict_basic_info())
+    # global_data_list_address_automate.append(htl.return_dict_block())
+    # global_data_list_address_automate.append(htl.return_dict_track())
+    # global_data_list_address_automate.append(htl.return_dict_zip_code())
+    # global_data_list_address_automate.append(htl.return_dict_county())
+    # global_data_list_address_automate.append(htl.return_dict_city())
+    # global_data_list_address_automate.append(htl.return_dict_metro())
     htl.xls_new_sheet_for_search_create()  # copy all dictionaries to xls file
     htl.basic_Info_dict_to_xls()  # copy
     htl.all_dicts_to_xls()  # copy
+
     dict_block_SQL = htl.return_dict_block()
     dict_city_SQL = htl.return_dict_city()
     dict_metro_SQL = htl.return_dict_metro()
+
     county = htl.return_county_name()[:-7]
     zip_code = htl.return_zip_code_for_zillow_use()
-    print('county name for schools run: {}'.format(county))
     htl.closeBrowser()
+    print('county name {}'.format(county))
     print('Demography Run ended')
 
-    print('Schools class started')
 
+    print('Schools class started')
     school = Schools(street, state, city, short_state, 'Address_data_full.xlsx', county, zip_code)
+
     # getting all schools info and putting it into dictionaries
     school.homefacts_to_dict()
     school.greateschools_to_dict()
     school.schooldigger_to_dict()
+
     # return all dicts & add to general list
-    global_data_list_address_automate.append('Schools')
-    global_data_list_address_automate.append(school.return_dict_basic_info())
-    global_data_list_address_automate.append(school.return_dict_greateshcools())
-    global_data_list_address_automate.append(school.return_dict_schooldigger())
-    global_data_list_address_automate.append(school.return_dict_homefacts())
+    # global_data_list_address_automate.append('Schools')
+    # global_data_list_address_automate.append(school.return_dict_basic_info())
+    # global_data_list_address_automate.append(school.return_dict_greateshcools())
+    # global_data_list_address_automate.append(school.return_dict_schooldigger())
+    # global_data_list_address_automate.append(school.return_dict_homefacts())
     # copy all dictionaries to xls file
+
     # school.xls_new_sheet_for_search_create()
     school.all_dicts_to_xls()
     dict_schools_SQL = school.return_dict_schools_general()
-    print('a')
     print(dict_schools_SQL)
     # school.closeBrowser()
     print('Schools Run ended')
 
+
     print('Crime class started')
     crime = Crime(street, state, city, short_state, 'Address_data_full.xlsx')
+
     # getting all the information and copy into dicts
     crime.onboardnavigator_to_dict()
     crime.city_data_to_dict()
     crime.home_facts_to_dict()
     crime.neighborhoodscout_to_dict()
     crime.bestplaces_to_dict()
+
     # crime.xls_new_sheet_create()
     crime.all_dicts_to_xls()
     crime.printall()
     # returning all dictionaries for general list
-    global_data_list_address_automate.append('Crime')
-    global_data_list_address_automate.append(crime.return_dict_basic_info())
-    global_data_list_address_automate.append(crime.return_dict_onboardnavigator())
-    global_data_list_address_automate.append(crime.return_dict_city_data())
-    global_data_list_address_automate.append(crime.return_dict_home_facts())
-    global_data_list_address_automate.append(crime.return_dict_neighborhoodscout())
-    global_data_list_address_automate.append(crime.return_dict_bestplaces())
+    # global_data_list_address_automate.append('Crime')
+    # global_data_list_address_automate.append(crime.return_dict_basic_info())
+    # global_data_list_address_automate.append(crime.return_dict_onboardnavigator())
+    # global_data_list_address_automate.append(crime.return_dict_city_data())
+    # global_data_list_address_automate.append(crime.return_dict_home_facts())
+    # global_data_list_address_automate.append(crime.return_dict_neighborhoodscout())
+    # global_data_list_address_automate.append(crime.return_dict_bestplaces())
     dict_crime_SQL = crime.return_dict_crime_total()
-    print('a')
     print(dict_crime_SQL)
     crime.closeBrowser()
     print('Crime Run ended')
+
 
     print('printing all dictionaries before copy to MySQL')
     print(dict_block_SQL)
@@ -123,7 +140,6 @@ def address_data_automate_tool(street, city, short_state, state, randomid):
     print(dict_metro_SQL)
     print(dict_crime_SQL)
     print(dict_schools_SQL)
-
     addr = street + ' ' + city + ' ' + short_state
 
     # MySQL
@@ -198,12 +214,6 @@ def address_data_automate_tool(street, city, short_state, state, randomid):
         print('address inserted')
     except:
         print('failed to connect to sql')
-
-
-# address_data_automate_tool(street, city, short_state, state, randomid)
-
-
-
 
 
 
