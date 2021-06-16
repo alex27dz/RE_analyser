@@ -2,4 +2,4 @@
 ![Coverage Status](https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_50.svg)
 
 # Home_analyser
-Detailed home data (web app/feature/API) for any address in US regions.
+Autoomation behind a web app for gethering information about houses in any address in US regions for real estate purpose 
